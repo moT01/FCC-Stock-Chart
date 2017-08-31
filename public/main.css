@@ -26,7 +26,7 @@ body {
 
 #symbolInput {
 	margin: 0 5px 0 100px;
-	display: inline; }
+	display: inline-block; }
 	
 .btn {
 	font-family: DejaVu Sans Mono;
