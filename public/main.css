@@ -5,31 +5,44 @@
 .center {
 	text-align: center; }
 
-body {
-	padding-top: 20px;
+.flex {
    display: -webkit-box;
    display: -moz-box;
    display: -ms-flexbox;
    display: -webkit-flex;
 	display: flex;
    align-items: center; 
-   justify-content: center; 
-	background-color: #333; }	
+   justify-content: center; }
+
+body {
+	padding-top: 20px;
+	background-color: #ccc; }	
 
 #stockCanvas {
+	margin: 20px;
 	width: 800px;
 	height: 400px;
 	background-color: #ccc; }
 
-.filter {
-	display: inline; }
-	
 #symbolInput {
+	margin: 0 5px 0 100px;
 	display: inline; }
 	
 .btn {
-	}
+	font-family: DejaVu Sans Mono;
+	font-size: 11px;
+	border-radius: 5px;
+	box-shadow: 1px 1px 1px 1px #000;
+	display: inline;
+	margin: 0 10px;
+	padding: 3px 6px 2px 6px;
+	color: #666;
+	background-color: #fff;
+	border: 1px solid #999;
+	cursor: pointer; }
 
-.btn:hover {}
-
-.btn:active {}
+.btn:hover {
+	box-shadow: 2px 2px 1px 1px #000; }
+	
+.btn:active {
+		box-shadow: 0px 0px 1px 1px #000; }

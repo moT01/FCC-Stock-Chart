@@ -9,14 +9,14 @@
 	<link href="main.css" rel="stylesheet" type="text/css">	
 </head>
 
-<body>
+<body class="flex">
 	<div>
 		<canvas id="stockCanvas"></canvas>
-		<div class="center">
-			<div class="btn filter">Today</div>			
-			<div class="btn filter">Daily</div>			
-			<div class="btn filter">Weekly</div>			
-			<div class="btn filter">Monthly</div>
+		<div class="flex">
+			<div class="btn" id="todayFilter">Today</div>			
+			<div class="btn" id="dailyFilter">Daily</div>			
+			<div class="btn" id="weeklyFilter">Weekly</div>			
+			<div class="btn" id="monthlyFilter">Monthly</div>
 			<input id="symbolInput" type="text" placeholder="enter stock symbol">
 			<div class="btn" id="getStockBtn">get stock</div>
 		</div>

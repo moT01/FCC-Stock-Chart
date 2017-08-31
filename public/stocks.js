@@ -4,7 +4,11 @@ var socket = io.connect('http://localhost:3000'); //local
 
 ////////////query DOM////////////
 var stockInput = document.getElementById('symbolInput'),
-	getStockBtn = document.getElementById('getStockBtn');
+	getStockBtn = document.getElementById('getStockBtn'),
+	todayFilter = document.getElementsByClassName('todayFilter'),
+	dailyFilter = document.getElementsByClassName('dailyFilter'),
+	weeklyFilter = document.getElementsByClassName('weeklyFilter'),
+	monthlyFilter = document.getElementsByClassName('monthlyFilter');
 
 
 ////////////functions////////////
