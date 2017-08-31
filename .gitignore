@@ -1,0 +1,5 @@
+node_modules
+*~
+index2.js
+.env
+apiCalls.txt

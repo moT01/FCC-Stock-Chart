@@ -1,0 +1,35 @@
+* {
+	margin: 0;
+	padding: 0; }
+	
+.center {
+	text-align: center; }
+
+body {
+	padding-top: 20px;
+   display: -webkit-box;
+   display: -moz-box;
+   display: -ms-flexbox;
+   display: -webkit-flex;
+	display: flex;
+   align-items: center; 
+   justify-content: center; 
+	background-color: #333; }	
+
+#stockCanvas {
+	width: 800px;
+	height: 400px;
+	background-color: #ccc; }
+
+.filter {
+	display: inline; }
+	
+#symbolInput {
+	display: inline; }
+	
+.btn {
+	}
+
+.btn:hover {}
+
+.btn:active {}
