@@ -3,27 +3,51 @@ var socket = io.connect('http://localhost:3000'); //local
 //var socket = io.connect('https://mystocks.glitch.me/'); //glitch
 
 ////////////query DOM////////////
-var stockInput = document.getElementById('symbolInput'),
+var symbolInput = document.getElementById('symbolInput'),
 	getStockBtn = document.getElementById('getStockBtn'),
-	todayFilter = document.getElementsByClassName('todayFilter'),
-	dailyFilter = document.getElementsByClassName('dailyFilter'),
-	weeklyFilter = document.getElementsByClassName('weeklyFilter'),
-	monthlyFilter = document.getElementsByClassName('monthlyFilter');
+	intervalBtns = document.getElementsByClassName('intervalBtn'),
+	stockCanvas = document.getElementById('stockCanvas');
+	
+var selectedInterval = "TIME_SERIES_INTRADAY";
 
+//add listener for all .intervalBtn
+for(var i=0; i<intervalBtns.length; i++) {
+	intervalBtns[i].addEventListener('click', updateInterval, false); 
+}
 
 ////////////functions////////////
+function updateInterval() {
+	var id = this.getAttribute('id');
+
+	//remove .selectedInterval from intervalBtn that has it and add it to clicked button
+	for (var i=0; i<intervalBtns.length; i++) {
+		if(intervalBtns[i].classList.contains('selectedInterval')) {
+			intervalBtns[i].classList.remove('selectedInterval'); } }
+	
+	this.classList.add('selectedInterval');
+	selectedInterval = id;
+	
+	changeInterval();
+} //end updateInterval()
+
+function emitStockSymbol() {
+	socket.emit('stockSymbol', {
+		stockRequested: symbolInput.value.toUpperCase(),
+		selectedInterval: selectedInterval
+	});
+} //end emitInfo
+
+function changeInterval() {
+	socket.emit('changeInterval', {
+		selectedInterval: selectedInterval
+	});
+} //end changeInterval
+
+//these call emitInfo() to get new stock
+getStockBtn.addEventListener('click', emitStockSymbol);
 symbolInput.addEventListener('keyup', function(e) {
 	if(e.keyCode === 13) {
-		socket.emit('stockSymbol', {
-		stockRequested: symbolInput.value.toUpperCase()
-		});
-	}
-});
-
-getStockBtn.addEventListener('click', function() {
-	socket.emit('stockSymbol', {
-		stockRequested: symbolInput.value.toUpperCase()
-	});
+		emitStockSymbol(); }
 });
 
 ////////////create chart////////////
@@ -31,50 +55,82 @@ var myChart = new Chart(document.getElementById("stockCanvas"), {
 	type: 'line',
 	data: {},
   	options: {
+		scales:{
+		  xAxes:[{
+		    	gridLines:{
+		      	color:'#999' },
+				ticks:{
+					fontColor: 'black' }
+		  	}],
+			yAxes:[{
+				gridLines:{
+					color: '#999' },
+				ticks:{
+					fontColor:'black' }
+		  	}],
+		},  		
   		responsive: false,
+     	legend: {
+        	display: true,
+	   	'onClick': function (evt, item) {
+         	console.log('legend onClick', evt, item); },
+         'onHover': function (evt, item) {
+         	stockCanvas.style.cursor = 'pointer'; },
+         labels: {
+             fontColor: 'black' },
+      },
+		hover: {
+      	onHover: function(e) {
+      		stockCanvas.style.cursor = 'default'; }
+     	},
+      title: {
+      	display: true,
+      	text: 'Stocks other people add with show up here in real time - three stocks maximum - to remove a stock click the label',
+			fontColor: 'black'
+      }   	
 	}
 }); //end new Chart
 
-
 ////////////from server////////////
+socket.on('update', function() {
+	changeInterval();
+});
+
 //see this link for example response data
 //https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=1min&apikey=demo
 //currentStocks will be an array of these objects
-
-socket.on('updateStocks', function(currentStocks) {
+socket.on('updateStocks', function(currentStocks, symbols) {
+	currentSymbols = symbols;
+	
 	var stockData = JSON.parse(currentStocks); //full JSON
-	console.log(stockData);
 	var keysForIndex = Object.keys(stockData[0]); //keys for first in array(index 0)
 	var timeLabels = Object.keys(stockData[0][keysForIndex[1]]);	//*Time Labels* e.g. "2017-08-28 16:00:00" -starting with most recent and working backwards  
 	var datasets = []; 
-	
+	var colors = ['white','black','#666'];
+	var i = 0;
+		
 	//create chart data from currentStocks
 	stockData.forEach(stock => {
 		var stockKeys = Object.keys(stock); //"Meta Data" & "Time Series (1min)" or "Time Series (other interval)"	
 		var stockSymbol = stock[stockKeys[0]]["2. Symbol"]; //get stock symbol
 		var stockTimes = Object.keys(stock[stockKeys[1]]);
 		var stockValues = [];
-
+		
 		//create array of prices
 		stockTimes.forEach(time => {
 			stockValues.push(stock[stockKeys[1]][time]["4. close"]);
-		});
+		});	
 		
 		//create object to push to datasets - to use in the chart
 		var tempDataset = {}
 		tempDataset.data = stockValues.reverse();
 		tempDataset.label = stockSymbol;
-		tempDataset.borderColor = "black";
+		tempDataset.borderColor = colors[i];
 		tempDataset.fill = false;
 		datasets.push(tempDataset);
+		
+		i++;
 	}); //end stockData.forEach	
-	
-	/*datasets: [{ 
-        data: [86,114,106,106,107,111,133,221,783,2478],
-        label: "Africa",
-        borderColor: "#3e95cd",
-        fill: false
-    }, */
 	
 	//send data to chart
 	myChart.data.labels = timeLabels.reverse();
