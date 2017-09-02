@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html id="html">
 
 <head>
 	<meta charset="utf-8">
@@ -13,10 +13,9 @@
 	<div>
 		<canvas id="stockCanvas"></canvas>
 		<div class="flex">
-			<div class="btn" id="todayFilter">Today</div>			
-			<div class="btn" id="dailyFilter">Daily</div>			
-			<div class="btn" id="weeklyFilter">Weekly</div>			
-			<div class="btn" id="monthlyFilter">Monthly</div>
+			<div class="btn intervalBtn selectedInterval" id="TIME_SERIES_INTRADAY">Today</div>			
+			<div class="btn intervalBtn" id="TIME_SERIES_DAILY">Daily</div>
+			<div class="btn intervalBtn" id="TIME_SERIES_MONTHLY">Monthly</div>
 			<input id="symbolInput" type="text" placeholder="enter stock symbol">
 			<div class="btn" id="getStockBtn">get stock</div>
 		</div>

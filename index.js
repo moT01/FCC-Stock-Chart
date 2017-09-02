@@ -16,14 +16,23 @@ app.use(express.static('public'));
 var io = socket(server);
 var currentStockSymbols = ['AAPL'];
 
-function emitStockData() {
+function emitStockData(timeFilter, id, socket) {
+	console.log(id);
 	var requestsCompleted = 0;
 	var requestsToMake = currentStockSymbols.length;
 	var updatedStockInfo = [];
 	
 	currentStockSymbols.forEach(symbol => {
 		var stockData = '';
-		https.get('https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=' + symbol + '&interval=1min&apikey=' + process.env.APIKEY, res => {
+		var url = 'https://www.alphavantage.co/query?function=' + timeFilter + '&symbol=' + symbol;
+		
+		if(timeFilter === "TIME_SERIES_INTRADAY") {
+			url += '&interval=1min&apikey=' + process.env.APIKEY;
+		} else {
+			url += '&apikey=' + process.env.APIKEY; 
+		}
+		
+		https.get(url, res => {
 			res.setEncoding('utf8');
 			
 			res.on('data', result => {
@@ -50,7 +59,7 @@ function emitStockData() {
 				console.log('requests completed = '+requestsCompleted);
 				if (requestsCompleted === requestsToMake) {
 					console.log(currentStockSymbols);
-					io.sockets.emit('updateStocks', JSON.stringify(updatedStockInfo));
+					io.to(id).emit('updateStocks', JSON.stringify(updatedStockInfo), currentStockSymbols);
 				}
 			}); //end res.on('end')
 		}); //end https.get
@@ -59,13 +68,20 @@ function emitStockData() {
 
 io.on('connection', function(socket) {
 	console.log('someone connected');
-	emitStockData();
+	socket.timeInterval = "TIME_SERIES_INTRADAY";
+	emitStockData(socket.timeInterval, socket.id, socket);
 	
 	//from client on stock symbol request
 	socket.on('stockSymbol', function(symbol) {
-		if(currentStockSymbols.indexOf(symbol.stockRequested) < 0 && currentStockSymbols.length < 3) { //if not in currentStockSymbols[] && < 4
+		if(currentStockSymbols.indexOf(symbol.stockRequested) < 0 && currentStockSymbols.length < 3) { //if not in currentStockSymbols[] && < 3
 			currentStockSymbols.push(symbol.stockRequested);		//push symbol to array, remove later if not found in get request
-			emitStockData();
+			emitStockData(socket.timeInterval, socket.id, socket);
+			socket.broadcast.emit('update');
 		}
 	}); //end socket.on('stockSymbol')
+
+	socket.on('changeInterval', function(selectedInterval) {
+		socket.timeInterval = selectedInterval.selectedInterval;
+		emitStockData(socket.timeInterval, socket.id, socket);
+	});
 }); //end io.on('connection')
