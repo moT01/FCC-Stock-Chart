@@ -17,13 +17,13 @@
 body {
 	height: 96vh;
 	padding-top: 20px;
-	background-color: #ccc; }	
+	background-color: #d1d1e0; }	
 
 #stockCanvas {
 	margin: 20px;
 	width: 800px;
 	height: 400px;
-	background-color: #ccc; }
+	background-color: #d1d1e0; }
 
 #symbolInput {
 	margin: 0 5px 0 100px;
