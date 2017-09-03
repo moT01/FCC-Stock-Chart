@@ -17,12 +17,19 @@ var io = socket(server);
 var currentStockSymbols = ['AAPL'];
 
 function emitStockData(timeFilter, id, socket) {
-	console.log(id);
+	var tempStockSymbols = currentStockSymbols;
 	var requestsCompleted = 0;
 	var requestsToMake = currentStockSymbols.length;
 	var updatedStockInfo = [];
 	
-	currentStockSymbols.forEach(symbol => {
+	console.log('temp=');
+	console.log(tempStockSymbols);
+	
+	if(tempStockSymbols.length === 0) {
+		io.to(id).emit('updateStocks', JSON.stringify(updatedStockInfo));
+	}
+
+	tempStockSymbols.forEach(symbol => {
 		var stockData = '';
 		var url = 'https://www.alphavantage.co/query?function=' + timeFilter + '&symbol=' + symbol;
 		
@@ -41,7 +48,7 @@ function emitStockData(timeFilter, id, socket) {
 			
 			res.on('end', () => {
 				stockData = JSON.parse(stockData);
-				console.log(stockData["Meta Data"]);
+				console.log('meta='+stockData["Meta Data"]);
 				
 				if (stockData["Error Message"]) { //stock symbol requested doesn't exist					
 					console.log('error finding stock symbol');
@@ -58,8 +65,7 @@ function emitStockData(timeFilter, id, socket) {
 				requestsCompleted ++;
 				console.log('requests completed = '+requestsCompleted);
 				if (requestsCompleted === requestsToMake) {
-					console.log(currentStockSymbols);
-					io.to(id).emit('updateStocks', JSON.stringify(updatedStockInfo), currentStockSymbols);
+					io.to(id).emit('updateStocks', JSON.stringify(updatedStockInfo));
 				}
 			}); //end res.on('end')
 		}); //end https.get
@@ -83,5 +89,11 @@ io.on('connection', function(socket) {
 	socket.on('changeInterval', function(selectedInterval) {
 		socket.timeInterval = selectedInterval.selectedInterval;
 		emitStockData(socket.timeInterval, socket.id, socket);
+	});
+	
+	socket.on('deleteStock', function(symbol) {
+		currentStockSymbols = currentStockSymbols.filter(item => item !== symbol.deleteSymbol);
+		emitStockData(socket.timeInterval, socket.id, socket);
+		socket.broadcast.emit('update');
 	});
 }); //end io.on('connection')
