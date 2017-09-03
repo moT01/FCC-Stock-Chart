@@ -6,9 +6,12 @@ var socket = io.connect('http://localhost:3000'); //local
 var symbolInput = document.getElementById('symbolInput'),
 	getStockBtn = document.getElementById('getStockBtn'),
 	intervalBtns = document.getElementsByClassName('intervalBtn'),
-	stockCanvas = document.getElementById('stockCanvas');
-	
+	stockCanvas = document.getElementById('stockCanvas'),
+	allElements = document.getElementsByTagName('*');
+		
 var selectedInterval = "TIME_SERIES_INTRADAY";
+var loading = true;
+startLoading();
 
 //add listener for all .intervalBtn
 for(var i=0; i<intervalBtns.length; i++) {
@@ -16,25 +19,47 @@ for(var i=0; i<intervalBtns.length; i++) {
 }
 
 ////////////functions////////////
-function updateInterval() {
-	var id = this.getAttribute('id');
+function startLoading() {
+	loading = true;
+	
+	for(var i=0; i<allElements.length; i++) {
+		allElements[i].classList.add('wait');	
+	}
+} //end loading()
 
-	//remove .selectedInterval from intervalBtn that has it and add it to clicked button
-	for (var i=0; i<intervalBtns.length; i++) {
-		if(intervalBtns[i].classList.contains('selectedInterval')) {
-			intervalBtns[i].classList.remove('selectedInterval'); } }
+function doneLoading() {
+	for(var i=0; i<allElements.length; i++) {
+		allElements[i].classList.remove('wait');	
+	}
+	loading = false;
+} //end doneLoading()
+
+function updateInterval() {
+	if (!loading) {
+		startLoading();
+		var id = this.getAttribute('id');
 	
-	this.classList.add('selectedInterval');
-	selectedInterval = id;
-	
-	changeInterval();
+		//remove .selectedInterval from intervalBtn that has it and add it to clicked button
+		for (var i=0; i<intervalBtns.length; i++) {
+			if(intervalBtns[i].classList.contains('selectedInterval')) {
+				intervalBtns[i].classList.remove('selectedInterval'); } }
+		
+		this.classList.add('selectedInterval');
+		selectedInterval = id;
+		
+		changeInterval();
+	}
 } //end updateInterval()
 
 function emitStockSymbol() {
-	socket.emit('stockSymbol', {
-		stockRequested: symbolInput.value.toUpperCase(),
-		selectedInterval: selectedInterval
-	});
+	if(!loading) {
+		startLoading();
+		
+		socket.emit('stockSymbol', {
+			stockRequested: symbolInput.value.toUpperCase(),
+			selectedInterval: selectedInterval
+		});
+	}
 } //end emitInfo
 
 function changeInterval() {
@@ -44,10 +69,12 @@ function changeInterval() {
 } //end changeInterval
 
 function deleteStock(symbol) {
-	console.log(symbol);
-	socket.emit('deleteStock', {
-		deleteSymbol: symbol
-	});
+	if(!loading) {
+		startLoading();
+		socket.emit('deleteStock', {
+			deleteSymbol: symbol
+		});
+	}
 }
 
 //these call emitInfo() to get new stock
@@ -101,7 +128,10 @@ var myChart = new Chart(document.getElementById("stockCanvas"), {
 
 ////////////from server////////////
 socket.on('update', function() {
-	changeInterval();
+	if(!loading) {
+		startLoading();
+		changeInterval();
+	}
 });
 
 //see this link for example response data
@@ -143,6 +173,8 @@ socket.on('updateStocks', function(currentStocks) {
 			
 			i++;
 		}); //end stockData.forEach	
+		
+		doneLoading();		
 		
 		//send data to chart
 		myChart.data.labels = timeLabels.reverse();

@@ -4,6 +4,12 @@
 		
 .center {
 	text-align: center; }
+	
+.inline {
+	display: inline-block; }
+	
+.wait {
+	cursor: wait !important; }
 
 .flex {
    display: -webkit-box;
