@@ -22,9 +22,6 @@ function emitStockData(timeFilter, id, socket) {
 	var requestsToMake = currentStockSymbols.length;
 	var updatedStockInfo = [];
 	
-	console.log('temp=');
-	console.log(tempStockSymbols);
-	
 	if(tempStockSymbols.length === 0) {
 		io.to(id).emit('updateStocks', JSON.stringify(updatedStockInfo));
 	}
@@ -48,7 +45,6 @@ function emitStockData(timeFilter, id, socket) {
 			
 			res.on('end', () => {
 				stockData = JSON.parse(stockData);
-				console.log('meta='+stockData["Meta Data"]);
 				
 				if (stockData["Error Message"]) { //stock symbol requested doesn't exist					
 					console.log('error finding stock symbol');
@@ -63,7 +59,6 @@ function emitStockData(timeFilter, id, socket) {
 				}
 				
 				requestsCompleted ++;
-				console.log('requests completed = '+requestsCompleted);
 				if (requestsCompleted === requestsToMake) {
 					io.to(id).emit('updateStocks', JSON.stringify(updatedStockInfo));
 				}
