@@ -142,6 +142,7 @@ socket.on('updateStocks', function(currentStocks) {
 	var stockData = JSON.parse(currentStocks); //full JSON
 	if (stockData.length === 0) {
 		myChart.data.datasets = {};
+		doneLoading();
 		myChart.update();
 	} else {
 	
