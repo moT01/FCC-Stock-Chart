@@ -78,6 +78,8 @@ io.on('connection', function(socket) {
 			currentStockSymbols.push(symbol.stockRequested);		//push symbol to array, remove later if not found in get request
 			emitStockData(socket.timeInterval, socket.id, socket);
 			socket.broadcast.emit('update');
+		} else {
+			io.sockets.emit('stopLoading');		
 		}
 	}); //end socket.on('stockSymbol')
 

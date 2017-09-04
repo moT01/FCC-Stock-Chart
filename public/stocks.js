@@ -134,6 +134,8 @@ socket.on('update', function() {
 	}
 });
 
+socket.on('stopLoading', doneLoading);
+
 //see this link for example response data
 //https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol=MSFT&interval=1min&apikey=demo
 //currentStocks will be an array of these objects
