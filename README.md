@@ -1,5 +1,5 @@
 ## FCC-Stock-Chart
-##### Chart the stock market project for [freecodecamp.com](https://www.freecodecamp.org/challenges/chart-the-stock-market)
+##### Chart the stock market project for [freecodecamp.com](https://www.freecodecamp.org)
 ##### Check it out [here](https://mystocks.glitch.me/)
 
 <br/>
@@ -19,10 +19,8 @@
 ##### Technologies used to complete this project
 - HTML
 - CSS
-- javascript
-- charts.js
-- NodeJS
+- Javascript
+- Chart.js
+- Node
 - Express
-- sockets.io
-
-
+- Sockets
